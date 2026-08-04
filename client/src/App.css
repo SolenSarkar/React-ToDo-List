@@ -166,7 +166,6 @@
 }
 
 .todo-text.completed {
-  text-decoration: line-through;
   color: #a0aec0;
 }
 
@@ -182,6 +181,16 @@
 .todo-actions {
   display: flex;
   gap: 6px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.todo-item:hover .todo-actions,
+.todo-item:focus-within .todo-actions,
+.todo-item:has(.todo-text.editing) .todo-actions {
+  opacity: 1;
+  visibility: visible;
 }
 
 .todo-actions button {

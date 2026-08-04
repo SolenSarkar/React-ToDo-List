@@ -55,7 +55,7 @@ export default function App() {
     }
   };
 
-  // Toggle a todo's completed status
+// Toggle a todo's completed status
   const toggleTodo = async (id) => {
     const target = todos.find((t) => t._id === id);
     if (!target) return;
@@ -64,6 +64,11 @@ export default function App() {
     setTodos((prev) =>
       prev.map((t) => (t._id === id ? { ...t, completed: !t.completed } : t))
     );
+
+    // When marking as complete, move view to the "Completed" tab
+    if (!target.completed) {
+      setFilter('completed');
+    }
     try {
       const res = await fetch(`${API_URL}/${id}`, {
         method: 'PUT',
@@ -129,23 +134,7 @@ export default function App() {
     completed: todos.filter((t) => t.completed).length,
   };
 
-  const clearCompleted = async () => {
-    const completedIds = todos.filter((t) => t.completed).map((t) => t._id);
-    if (completedIds.length === 0) return;
-    try {
-      setError('');
-      await Promise.all(
-        completedIds.map((id) =>
-          fetch(`${API_URL}/${id}`, { method: 'DELETE' })
-        )
-      );
-      setTodos((prev) => prev.filter((t) => !t.completed));
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  return (
+return (
     <div className="app">
       <header className="app-header">
         <h1>📝 To-Do List</h1>
@@ -176,12 +165,7 @@ export default function App() {
           </p>
         )}
 
-        {counts.completed > 0 && (
-          <button className="clear-completed" onClick={clearCompleted}>
-            Clear completed
-          </button>
-        )}
-      </main>
+</main>
 
       <footer className="app-footer">
         {counts.active} active • {counts.completed} completed
