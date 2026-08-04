@@ -15,3 +15,6 @@
 - [x] Verify app runs (start backend, then frontend)
   - [x] Backend connected to MongoDB Atlas on :5000
   - [x] Frontend Vite dev server on :5173
+- [x] Fix: newly added todo now appears instantly (no refresh needed)
+  - [x] Prepend new todo to state immediately in addTodo
+  - [x] Re-sync list from server after add for guaranteed consistency

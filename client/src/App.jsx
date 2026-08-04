@@ -46,7 +46,10 @@ export default function App() {
         throw new Error(data.message || 'Failed to add todo');
       }
       const newTodo = await res.json();
+      // Prepend the new todo immediately so it shows up instantly.
       setTodos((prev) => [newTodo, ...prev]);
+      // Re-sync from the server to guarantee the list matches the backend.
+      await fetchTodos();
     } catch (err) {
       setError(err.message);
     }
