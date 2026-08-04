@@ -1,0 +1,17 @@
+# MERN To-Do List App — Build Progress
+
+- [x] Plan approved & MongoDB Atlas connection provided
+- [x] Create backend (server/) files
+  - [x] package.json, .env, .gitignore
+  - [x] server.js (Express + Mongoose)
+  - [x] models/Todo.js
+  - [x] routes/todos.js
+- [x] Create frontend (client/) files
+  - [x] package.json, vite.config.js, index.html, .gitignore
+  - [x] src/main.jsx, src/App.jsx, src/index.css, src/App.css
+  - [x] components/TodoForm.jsx, TodoList.jsx, TodoItem.jsx, TodoFilter.jsx
+- [x] Create README.md
+- [x] Install dependencies (server & client)
+- [x] Verify app runs (start backend, then frontend)
+  - [x] Backend connected to MongoDB Atlas on :5000
+  - [x] Frontend Vite dev server on :5173
