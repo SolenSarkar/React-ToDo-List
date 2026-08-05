@@ -18,3 +18,9 @@
 - [x] Fix: newly added todo now appears instantly (no refresh needed)
   - [x] Prepend new todo to state immediately in addTodo
   - [x] Re-sync list from server after add for guaranteed consistency
+- [x] Add pagination (client + server)
+  - [x] Server: GET /api/todos supports page & limit, returns { todos, total, page, limit, totalPages, counts }
+  - [x] Client: App.jsx uses page state, fetches with page/limit, filters page, computes totalPages
+  - [x] New Pagination component (Prev/Next + numbers, right-aligned)
+  - [x] App.css styles for pagination
+  - [x] Update README API docs

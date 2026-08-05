@@ -245,6 +245,51 @@
   background: #fed7d7;
 }
 
+/* ---------- Pagination ---------- */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.page-btn {
+  min-width: 34px;
+  height: 34px;
+  padding: 0 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #718096;
+  background: #edf2f7;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.page-btn:hover:not(:disabled) {
+  background: #e2e8f0;
+}
+
+.page-btn.active {
+  background: #667eea;
+  color: #ffffff;
+  border-color: #667eea;
+}
+
+.page-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-info {
+  margin-left: 6px;
+  font-size: 0.85rem;
+  color: #a0aec0;
+}
+
 /* ---------- Footer ---------- */
 .app-footer {
   text-align: center;

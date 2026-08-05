@@ -79,10 +79,15 @@ Visit **http://localhost:5173** — the Vite dev server proxies `/api` requests 
 
 | Method | Endpoint            | Description                        |
 | ------ | ------------------- | ---------------------------------- |
-| GET    | `/api/todos`        | Fetch all todos                    |
+| GET    | `/api/todos`        | Fetch all todos (paginated)        |
 | POST   | `/api/todos`        | Create a todo `{ "text": "..." }`  |
 | PUT    | `/api/todos/:id`    | Update text / completed            |
 | DELETE | `/api/todos/:id`    | Delete a todo                      |
+
+> **GET `/api/todos`** supports pagination and filtering via query params:
+> `?page=1&limit=5&status=all|active|completed`. It returns:
+> `{ todos, total, page, limit, totalPages, counts }` where `counts` holds
+> `{ all, active, completed }` totals.
 
 ## 🛠️ Production Build
 

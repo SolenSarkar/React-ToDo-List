@@ -2,25 +2,44 @@ import { useState, useEffect, useCallback } from 'react';
 import TodoForm from './components/TodoForm.jsx';
 import TodoList from './components/TodoList.jsx';
 import TodoFilter from './components/TodoFilter.jsx';
+import Pagination from './components/Pagination.jsx';
 import './App.css';
 
 const API_URL = '/api/todos';
+const ITEMS_PER_PAGE = 5;
 
 export default function App() {
   const [todos, setTodos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [filter, setFilter] = useState('all');
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [counts, setCounts] = useState({ all: 0, active: 0, completed: 0 });
 
-  // Fetch todos from the server
-  const fetchTodos = useCallback(async () => {
+  // Fetch a specific page from the server (paginated + filtered)
+  const fetchTodos = useCallback(async (requestedPage, requestedFilter) => {
     try {
       setLoading(true);
       setError('');
-      const res = await fetch(API_URL);
+      const params = new URLSearchParams({
+        page: requestedPage,
+        limit: ITEMS_PER_PAGE,
+        status: requestedFilter,
+      });
+      const res = await fetch(`${API_URL}?${params}`);
       if (!res.ok) throw new Error('Failed to load todos');
       const data = await res.json();
-      setTodos(data);
+      setTodos(data.todos);
+      setTotal(data.total);
+      setTotalPages(data.totalPages);
+      setCounts(data.counts);
+      // If the requested page is beyond the last page, clamp it.
+      if (requestedPage > data.totalPages) {
+        setPage(data.totalPages);
+        return; // effect will refetch with the clamped page
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -28,9 +47,10 @@ export default function App() {
     }
   }, []);
 
+  // Fetch whenever page or filter changes
   useEffect(() => {
-    fetchTodos();
-  }, [fetchTodos]);
+    fetchTodos(page, filter);
+  }, [fetchTodos, page, filter]);
 
   // Add a new todo
   const addTodo = async (text) => {
@@ -45,17 +65,14 @@ export default function App() {
         const data = await res.json();
         throw new Error(data.message || 'Failed to add todo');
       }
-      const newTodo = await res.json();
-      // Prepend the new todo immediately so it shows up instantly.
-      setTodos((prev) => [newTodo, ...prev]);
-      // Re-sync from the server to guarantee the list matches the backend.
-      await fetchTodos();
+      setPage(1); // jump to the first page to see the new todo
+      fetchTodos(1, filter);
     } catch (err) {
       setError(err.message);
     }
   };
 
-// Toggle a todo's completed status
+  // Toggle a todo's completed status
   const toggleTodo = async (id) => {
     const target = todos.find((t) => t._id === id);
     if (!target) return;
@@ -68,6 +85,7 @@ export default function App() {
     // When marking as complete, move view to the "Completed" tab
     if (!target.completed) {
       setFilter('completed');
+      setPage(1);
     }
     try {
       const res = await fetch(`${API_URL}/${id}`, {
@@ -78,11 +96,14 @@ export default function App() {
       if (!res.ok) {
         throw new Error('Failed to update todo');
       }
+      fetchTodos(page, filter);
     } catch (err) {
       setError(err.message);
       // Revert on error
       setTodos((prev) =>
-        prev.map((t) => (t._id === id ? { ...t, completed: target.completed } : t))
+        prev.map((t) =>
+          t._id === id ? { ...t, completed: target.completed } : t
+        )
       );
     }
   };
@@ -116,25 +137,23 @@ export default function App() {
       const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to delete todo');
       setTodos((prev) => prev.filter((t) => t._id !== id));
+      fetchTodos(page, filter);
     } catch (err) {
       setError(err.message);
     }
   };
 
-  // Derived lists based on the active filter
-  const filteredTodos = todos.filter((todo) => {
-    if (filter === 'active') return !todo.completed;
-    if (filter === 'completed') return todo.completed;
-    return true;
-  });
-
-  const counts = {
-    all: todos.length,
-    active: todos.filter((t) => !t.completed).length,
-    completed: todos.filter((t) => t.completed).length,
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
   };
 
-return (
+  const handleFilterChange = (newFilter) => {
+    if (newFilter === filter) return;
+    setFilter(newFilter);
+    setPage(1); // reset to first page when filter changes
+  };
+
+  return (
     <div className="app">
       <header className="app-header">
         <h1>📝 To-Do List</h1>
@@ -146,26 +165,39 @@ return (
 
         <TodoForm onAdd={addTodo} />
 
-        <TodoFilter filter={filter} onFilterChange={setFilter} counts={counts} />
+        <TodoFilter
+          filter={filter}
+          onFilterChange={handleFilterChange}
+          counts={counts}
+        />
 
         {loading ? (
           <div className="loading">Loading todos…</div>
         ) : (
           <TodoList
-            todos={filteredTodos}
+            todos={todos}
             onToggle={toggleTodo}
             onEdit={editTodo}
             onDelete={deleteTodo}
           />
         )}
 
-        {!loading && filteredTodos.length === 0 && (
+        {!loading && todos.length === 0 && (
           <p className="empty-message">
-            {todos.length === 0 ? 'No todos yet. Add one above! 🎯' : 'No todos in this filter.'}
+            {total === 0
+              ? 'No todos yet. Add one above! 🎯'
+              : 'No todos in this filter.'}
           </p>
         )}
 
-</main>
+        {!loading && total > 0 && (
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        )}
+      </main>
 
       <footer className="app-footer">
         {counts.active} active • {counts.completed} completed
@@ -173,4 +205,3 @@ return (
     </div>
   );
 }
-
