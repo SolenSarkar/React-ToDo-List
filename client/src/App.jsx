@@ -5,7 +5,11 @@ import TodoFilter from './components/TodoFilter.jsx';
 import Pagination from './components/Pagination.jsx';
 import './App.css';
 
-const API_URL = '/api/todos';
+// In dev, Vite proxies /api to the Express backend.
+// In production (GitHub Pages), point VITE_API_URL to a hosted backend, e.g.
+// https://your-backend.onrender.com/api/todos
+const API_URL =
+  import.meta.env.VITE_API_URL || '/api/todos';
 const ITEMS_PER_PAGE = 5;
 
 export default function App() {

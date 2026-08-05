@@ -98,6 +98,33 @@ npm run build
 
 The static files in `client/dist` can be served by any static host (or by Express with a small addition).
 
+## 🚢 Deployment (GitHub Pages)
+
+This repo includes a **GitHub Actions workflow** (`.github/workflows/deploy.yml`) that automatically builds the React app and publishes it to **GitHub Pages** on every push to `main`.
+
+### One-time setup
+
+1. Go to **Settings → Pages** in your repo.
+2. Under **Build and deployment → Source**, select **GitHub Actions**.
+3. Push a commit to `main` (or run the **Deploy to GitHub Pages** workflow manually from the Actions tab).
+
+The app will be live at:
+
+```
+https://SolenSarkar.github.io/React-ToDo-List/
+```
+
+### Deploying the backend
+
+GitHub Pages is **static-only**, so the Express + MongoDB backend must be hosted separately (e.g. [Render](https://render.com), [Railway](https://railway.app) or [Cyclic](https://cyclic.sh)):
+
+1. Host the `server/` folder (start command: `npm start`).
+2. Set the `MONGODB_URI` env var on the host to your Atlas/local connection string.
+3. Add a repo secret `VITE_API_URL` (Settings → Secrets and variables → Actions) containing your hosted backend URL including the path, e.g. `https://todo-backend.onrender.com/api/todos`.
+4. Re-run the workflow — the frontend will now call your hosted API.
+
+> Without a hosted backend / `VITE_API_URL`, the deployed site will render the To-Do UI but fail to fetch todos (dev mode still proxies `/api` to `localhost:5000`).
+
 ---
 
 Built with ❤️ using React, Vite, Express, Mongoose & MongoDB.

@@ -16,11 +16,12 @@
   - [x] Backend connected to MongoDB Atlas on :5000
   - [x] Frontend Vite dev server on :5173
 - [x] Fix: newly added todo now appears instantly (no refresh needed)
-  - [x] Prepend new todo to state immediately in addTodo
-  - [x] Re-sync list from server after add for guaranteed consistency
 - [x] Add pagination (client + server)
-  - [x] Server: GET /api/todos supports page & limit, returns { todos, total, page, limit, totalPages, counts }
-  - [x] Client: App.jsx uses page state, fetches with page/limit, filters page, computes totalPages
-  - [x] New Pagination component (Prev/Next + numbers, right-aligned)
-  - [x] App.css styles for pagination
-  - [x] Update README API docs
+- [x] **GitHub Pages deployment fix**
+  - [x] Add `.github/workflows/deploy.yml` (build client/dist + deploy to Pages)
+  - [x] Update `client/vite.config.js` with `base: '/React-ToDo-List/'`
+  - [x] Update `client/src/App.jsx` to read `VITE_API_URL` for a hosted backend
+  - [x] Update README.md with a Deployment section
+- [ ] Push changes to `origin/main`
+- [ ] Set GitHub Pages source to **GitHub Actions** in repo Settings
+- [ ] Verify app live at `https://SolenSarkar.github.io/React-ToDo-List/`
