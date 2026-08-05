@@ -22,6 +22,6 @@
   - [x] Update `client/vite.config.js` with `base: '/React-ToDo-List/'`
   - [x] Update `client/src/App.jsx` to read `VITE_API_URL` for a hosted backend
   - [x] Update README.md with a Deployment section
-- [ ] Push changes to `origin/main`
+- [x] Push changes to `origin/main`
 - [ ] Set GitHub Pages source to **GitHub Actions** in repo Settings
 - [ ] Verify app live at `https://SolenSarkar.github.io/React-ToDo-List/`
