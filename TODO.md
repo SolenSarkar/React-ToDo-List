@@ -23,5 +23,8 @@
   - [x] Update `client/src/App.jsx` to read `VITE_API_URL` for a hosted backend
   - [x] Update README.md with a Deployment section
 - [x] Push changes to `origin/main`
-- [ ] Set GitHub Pages source to **GitHub Actions** in repo Settings
-- [ ] Verify app live at `https://SolenSarkar.github.io/React-ToDo-List/`
+- [x] Set GitHub Pages source to **GitHub Actions** in repo Settings
+  - Updated Pages `build_type` to `workflow` via the GitHub API (was `legacy`/deploy-from-branch, which was serving the README)
+- [x] Verify app live at `https://SolenSarkar.github.io/React-ToDo-List/`
+  - Live site now returns HTTP 200 and serves the React `<div id="root">` app (not the README)
+  - Fresh deploy run `31026190529` succeeded (build + deploy jobs ✓)
