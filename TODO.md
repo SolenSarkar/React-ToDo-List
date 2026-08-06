@@ -17,7 +17,7 @@
 ## In Progress — Fix Render backend deployment (root-level package.json)
 - [x] Add root-level `package.json` so Render can build & start from repo root
 - [x] Update `server/server.js` to load `.env` explicitly from its own directory
-- [ ] Commit & push fixes to `main`
+- [x] Commit & push fixes to `main` (commit `d40c7dc`)
 - [ ] Re-deploy on Render and verify backend is live
 - [ ] Verify GitHub Pages frontend calls hosted backend via `VITE_API_URL`
 
