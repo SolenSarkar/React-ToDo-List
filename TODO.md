@@ -6,7 +6,7 @@
 - [x] Create frontend (client/) files
 - [x] Create README.md
 - [x] Install dependencies (server & client)
-- [x] Verify app runs locally (backend + frontend)
+- [x] Verify app runs locally (backend + frontend)  
 - [x] Add pagination (client + server)
 - [x] GitHub Pages deployment (client/dist)
 - [x] Diagnose "Unexpected token '<'" error on live site
