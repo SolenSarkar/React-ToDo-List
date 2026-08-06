@@ -114,16 +114,33 @@ The app will be live at:
 https://SolenSarkar.github.io/React-ToDo-List/
 ```
 
-### Deploying the backend
+### Deploying the backend (on Render)
 
-GitHub Pages is **static-only**, so the Express + MongoDB backend must be hosted separately (e.g. [Render](https://render.com), [Railway](https://railway.app) or [Cyclic](https://cyclic.sh)):
+GitHub Pages is **static-only**, so the Express + MongoDB backend must be hosted separately. The free tier of [Render](https://render.com) works well.
 
-1. Host the `server/` folder (start command: `npm start`).
-2. Set the `MONGODB_URI` env var on the host to your Atlas/local connection string.
-3. Add a repo secret `VITE_API_URL` (Settings → Secrets and variables → Actions) containing your hosted backend URL including the path, e.g. `https://todo-backend.onrender.com/api/todos`.
-4. Re-run the workflow — the frontend will now call your hosted API.
+1. **Create a new Web Service** on Render and point it at this repo (or push the `server/` folder to its own repo).
+   - **Build command:** `npm install`
+   - **Start command:** `npm start`
+   - **Root directory:** `server` (if using the monorepo)
 
-> Without a hosted backend / `VITE_API_URL`, the deployed site will render the To-Do UI but fail to fetch todos (dev mode still proxies `/api` to `localhost:5000`).
+2. **Set these environment variables** in Render (Dashboard → your service → Environment):
+   ```
+   PORT=5000
+   MONGODB_URI=mongodb+srv://<user>:<pass>@<cluster>.mongodb.net/todoapp
+   CLIENT_URL=https://Solensarkar.github.io/React-ToDo-List/
+   ```
+   > `CLIENT_URL` tells the backend which origin may call it. The server whitelists this plus localhost dev origins in CORS.
+
+3. **Copy your Render URL** — it will look like `https://todo-backend.onrender.com`.
+
+4. **Tell the frontend to use it.** Add a repo **secret** `VITE_API_URL`:
+   - Repo → **Settings → Secrets and variables → Actions → New repository secret**
+   - Name: `VITE_API_URL`
+   - Value: `https://todo-backend.onrender.com/api/todos` (include `/api/todos`)
+
+5. **Re-run the deploy workflow** (Actions → Deploy to GitHub Pages → Run workflow). The built frontend will now call your hosted API.
+
+> ✅ **You must add the `VITE_API_URL` secret.** Without it, the deployed frontend falls back to `/api/todos` on GitHub Pages, which returns HTML — causing the `Unexpected token '<'` error when adding a todo. Dev mode still proxies `/api` to `localhost:5000`, so local development is unaffected.
 
 ---
 

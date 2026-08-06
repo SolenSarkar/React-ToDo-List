@@ -9,8 +9,28 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Allowed origins for CORS
+const allowedOrigins = [
+  process.env.CLIENT_URL, // e.g. https://Solensarkar.github.io/React-ToDo-List/
+  'https://solensarkar.github.io', // bare GitHub Pages origin (Origin header has no path)
+  'http://localhost:5173', // Vite dev server
+  'http://127.0.0.1:5173',
+].filter(Boolean);
+
 // Middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (e.g. curl, Postman, same-origin)
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error('Not allowed by CORS')); // eslint-disable-line prefer-promise-reject-errors
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 // Routes

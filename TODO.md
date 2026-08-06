@@ -1,30 +1,24 @@
-# MERN To-Do List App — Build Progress
+# MERN To-Do List App — Build & Deploy Progress
 
+## Done
 - [x] Plan approved & MongoDB Atlas connection provided
 - [x] Create backend (server/) files
-  - [x] package.json, .env, .gitignore
-  - [x] server.js (Express + Mongoose)
-  - [x] models/Todo.js
-  - [x] routes/todos.js
 - [x] Create frontend (client/) files
-  - [x] package.json, vite.config.js, index.html, .gitignore
-  - [x] src/main.jsx, src/App.jsx, src/index.css, src/App.css
-  - [x] components/TodoForm.jsx, TodoList.jsx, TodoItem.jsx, TodoFilter.jsx
 - [x] Create README.md
 - [x] Install dependencies (server & client)
-- [x] Verify app runs (start backend, then frontend)
-  - [x] Backend connected to MongoDB Atlas on :5000
-  - [x] Frontend Vite dev server on :5173
-- [x] Fix: newly added todo now appears instantly (no refresh needed)
+- [x] Verify app runs locally (backend + frontend)
 - [x] Add pagination (client + server)
-- [x] **GitHub Pages deployment fix**
-  - [x] Add `.github/workflows/deploy.yml` (build client/dist + deploy to Pages)
-  - [x] Update `client/vite.config.js` with `base: '/React-ToDo-List/'`
-  - [x] Update `client/src/App.jsx` to read `VITE_API_URL` for a hosted backend
-  - [x] Update README.md with a Deployment section
-- [x] Push changes to `origin/main`
-- [x] Set GitHub Pages source to **GitHub Actions** in repo Settings
-  - Updated Pages `build_type` to `workflow` via the GitHub API (was `legacy`/deploy-from-branch, which was serving the README)
-- [x] Verify app live at `https://SolenSarkar.github.io/React-ToDo-List/`
-  - Live site now returns HTTP 200 and serves the React `<div id="root">` app (not the README)
-  - Fresh deploy run `31026190529` succeeded (build + deploy jobs ✓)
+- [x] GitHub Pages deployment (client/dist)
+- [x] Diagnose "Unexpected token '<'" error on live site
+  - Root cause: live site fell back to `/api/todos` on GitHub Pages (static), which returns HTML, not JSON.
+
+## In Progress — Wire up hosted backend (Render) so the live site works end-to-end
+- [x] Update `server/.env` with `CLIENT_URL` (frontend origin)
+- [x] Update `server/server.js` to whitelist frontend origins in CORS
+  - [x] Verified: GitHub Pages origin (`https://solensarkar.github.io`) allowed ✅
+  - [x] Verified: disallowed origin rejected ✅
+- [x] `.github/workflows/deploy.yml` already injects `VITE_API_URL` from GitHub secret (verified)
+- [x] Update README.md with Render deployment steps
+- [ ] **USER ACTION:** Deploy backend to Render (Web Service → `server/`, `npm start`, env vars `PORT`, `MONGODB_URI`, `CLIENT_URL`)
+- [ ] **USER ACTION:** Add GitHub secret `VITE_API_URL` = `https://<your-render-url>.onrender.com/api/todos`
+- [ ] **USER ACTION:** Re-run deploy workflow & verify add/toggle/edit/delete on live site
