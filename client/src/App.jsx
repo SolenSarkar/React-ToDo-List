@@ -8,8 +8,14 @@ import './App.css';
 // In dev, Vite proxies /api to the Express backend.
 // In production (GitHub Pages), point VITE_API_URL to a hosted backend, e.g.
 // https://your-backend.onrender.com/api/todos
-const API_URL =
-  import.meta.env.VITE_API_URL || '/api/todos';
+// Derive the base API URL. If VITE_API_URL is set to the bare backend origin
+// (e.g. https://my-api.onrender.com) without the /api/todos suffix, append it
+// automatically so requests don't hit the root route (which 404s on non-GET).
+let apiUrl = import.meta.env.VITE_API_URL || '/api/todos';
+if (apiUrl && !apiUrl.endsWith('/api/todos')) {
+  apiUrl = apiUrl.replace(/\/+$/, '') + '/api/todos';
+}
+const API_URL = apiUrl;
 const ITEMS_PER_PAGE = 5;
 
 export default function App() {

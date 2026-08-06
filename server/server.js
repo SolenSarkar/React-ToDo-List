@@ -47,6 +47,17 @@ app.get('/', (req, res) => {
   res.send('🚀 To-Do API is running. See /api/todos');
 });
 
+// Handle non-GET requests to the root (e.g. naive POST to the bare domain)
+// gracefully with a helpful JSON hint instead of a raw 404.
+app.all('/', (req, res) => {
+  res
+    .status(404)
+    .json({
+      message:
+        'To-Do API endpoint not found. Use /api/todos for todo operations.',
+    });
+});
+
 // MongoDB connection
 mongoose
   .connect(process.env.MONGODB_URI)
