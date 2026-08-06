@@ -118,18 +118,26 @@ https://SolenSarkar.github.io/React-ToDo-List/
 
 GitHub Pages is **static-only**, so the Express + MongoDB backend must be hosted separately. The free tier of [Render](https://render.com) works well.
 
-1. **Create a new Web Service** on Render and point it at this repo (or push the `server/` folder to its own repo).
-   - **Build command:** `npm install`
-   - **Start command:** `npm start`
-   - **Root directory:** `server` (if using the monorepo)
+### Option A — Render Blueprint (recommended, auto-deploys the `server/` subfolder)
 
-2. **Set these environment variables** in Render (Dashboard → your service → Environment):
+This repo includes a **`render.yaml`** Blueprint at the root. It tells Render to build & run the backend from the `server/` subfolder.
+
+1. In Render, choose **New → Blueprint** and connect this repo.
+2. Render reads `render.yaml` and creates the web service `react-todo-backend` (build: `npm install`, start: `npm start`, root dir: `server`).
+3. Set the two **secret** env vars in the service (Settings → Environment). They are intentionally **not** stored in `render.yaml`:
    ```
-   PORT=5000
    MONGODB_URI=mongodb+srv://<user>:<pass>@<cluster>.mongodb.net/todoapp
    CLIENT_URL=https://Solensarkar.github.io/React-ToDo-List/
    ```
    > `CLIENT_URL` tells the backend which origin may call it. The server whitelists this plus localhost dev origins in CORS.
+
+### Option B — Manual Web Service
+
+1. **Create a new Web Service** on Render and point it at this repo (or push the `server/` folder to its own repo).
+   - **Build command:** `npm install`
+   - **Start command:** `npm start`
+   - **Root directory:** `server` (if using the monorepo)
+2. **Set the same environment variables** as above (`PORT`, `MONGODB_URI`, `CLIENT_URL`).
 
 3. **Copy your Render URL** — it will look like `https://todo-backend.onrender.com`.
 

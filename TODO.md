@@ -27,7 +27,15 @@
 - This is a GitHub Pages infrastructure backlog, not a problem with the code. The previous 4 deployments all succeeded, and the build artifact is valid.
 - Re-trigger the workflow later via Actions → **Deploy to GitHub Pages** → **Run workflow** once GitHub's Pages queue clears.
 
+## Render deployment — fixes to get the backend deployed
+- [x] Add root `render.yaml` Blueprint so Render auto-provisions the backend from the `server/` subfolder
+  - `rootDir: server`, build `npm install`, start `npm start`, health check `/`
+  - Secret env vars (`MONGODB_URI`, `CLIENT_URL`) declared with `sync: false` (set in dashboard)
+- [x] Add `engines.node >=18.0.0` to `server/package.json` so Render picks a compatible Node runtime
+- [x] Update README with **Option A (Blueprint)** + **Option B (manual Web Service)** steps
+
 ## Remaining (user actions)
-- [ ] **USER ACTION:** Deploy backend to Render (Web Service → `server/`, `npm start`, env vars `PORT`, `MONGODB_URI`, `CLIENT_URL`)
+- [ ] **USER ACTION:** On Render choose **New → Blueprint** → connect this repo (Render reads `render.yaml` and creates the service)
+- [ ] **USER ACTION:** Set secret env vars in the service: `MONGODB_URI` and `CLIENT_URL=https://Solensarkar.github.io/React-ToDo-List/`
 - [ ] **USER ACTION:** Add GitHub secret `VITE_API_URL` = `https://<your-render-url>.onrender.com/api/todos`
 - [ ] **USER ACTION:** Re-run deploy workflow & verify add/toggle/edit/delete on live site
