@@ -1,82 +1,148 @@
 import { useState } from 'react';
 
-export default function TodoItem({ todo, onToggle, onEdit, onDelete }) {
+export default function TodoItem({
+  todo,
+  onToggle,
+  onEdit,
+  onDelete,
+}) {
   const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState(todo.title);
+  const [editText, setEditText] = useState(
+    todo.title ?? todo.text ?? ''
+  );
 
-  const startEdit = () => {
-    setDraft(todo.title);
-    setEditing(true);
-  };
+  const handleSave = () => {
+    const trimmed = editText.trim();
 
-  const saveEdit = () => {
-    const trimmed = draft.trim();
-    if (!trimmed) return; // keep editing if empty
+    if (!trimmed) {
+      return;
+    }
+
     onEdit(todo._id, trimmed);
     setEditing(false);
   };
 
-  const cancelEdit = () => {
-    setDraft(todo.title);
+  const handleCancel = () => {
+    setEditText(
+      todo.title ?? todo.text ?? ''
+    );
+
     setEditing(false);
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') saveEdit();
-    if (e.key === 'Escape') cancelEdit();
-  };
-
   return (
-    <li className="todo-item">
+    <li
+      className={
+        todo.completed
+          ? 'todo-item completed'
+          : 'todo-item'
+      }
+    >
+
+      {/* Checkbox */}
       <input
         type="checkbox"
-        className="todo-checkbox"
-        checked={todo.completed}
-        onChange={() => onToggle(todo._id)}
-        title="Toggle complete"
+        checked={Boolean(todo.completed)}
+        onChange={() =>
+          onToggle(todo._id)
+        }
       />
 
-      {editing ? (
-        <input
-          className="todo-title editing"
-          type="title"
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onKeyDown={handleKeyDown}
-          autoFocus
-        />
-      ) : (
-        <span
-          className={`todo-title${todo.completed ? ' completed' : ''}`}
-          onClick={() => onToggle(todo._id)}
-          onDoubleClick={startEdit}
-        >
-          {todo.title}
-        </span>
-      )}
 
-      <div className="todo-actions">
+      {/* Todo content */}
+      <div className="todo-content">
+
         {editing ? (
+
+          <input
+            type="text"
+            value={editText}
+            onChange={(e) =>
+              setEditText(e.target.value)
+            }
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleSave();
+              }
+
+              if (e.key === 'Escape') {
+                handleCancel();
+              }
+            }}
+            autoFocus
+            className="todo-edit-input"
+          />
+
+        ) : (
+
+          <span
+            className={
+              todo.completed
+                ? 'todo-title completed'
+                : 'todo-title'
+            }
+          >
+            {todo.title ??
+              todo.text ??
+              'Untitled Todo'}
+          </span>
+
+        )}
+
+      </div>
+
+
+      {/* Buttons */}
+      <div className="todo-actions">
+
+        {editing ? (
+
           <>
-            <button className="btn-save" onClick={saveEdit}>
+            <button
+              type="button"
+              onClick={handleSave}
+              className="save-button"
+            >
               Save
             </button>
-            <button className="btn-cancel" onClick={cancelEdit}>
+
+            <button
+              type="button"
+              onClick={handleCancel}
+              className="cancel-button"
+            >
               Cancel
             </button>
           </>
+
         ) : (
+
           <>
-            <button className="btn-edit" onClick={startEdit}>
+            <button
+              type="button"
+              onClick={() =>
+                setEditing(true)
+              }
+              className="edit-button"
+            >
               Edit
             </button>
-            <button className="btn-delete" onClick={() => onDelete(todo._id)}>
+
+            <button
+              type="button"
+              onClick={() =>
+                onDelete(todo._id)
+              }
+              className="delete-button"
+            >
               Delete
             </button>
           </>
+
         )}
+
       </div>
+
     </li>
   );
 }
-

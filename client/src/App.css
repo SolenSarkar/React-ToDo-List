@@ -1,207 +1,538 @@
-.app {
-  max-width: 620px;
-  margin: 0 auto;
-  padding: 40px 20px;
+/* ======================================================
+   GLOBAL
+====================================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  background:
+    linear-gradient(
+      135deg,
+      #667eea 0%,
+      #764ba2 100%
+    );
+
   min-height: 100vh;
+}
+
+
+/* ======================================================
+   MAIN APP
+====================================================== */
+
+.app {
+  width: 100%;
+  max-width: 700px;
+
+  margin: 0 auto;
+
+  padding: 40px 20px;
+
+  min-height: 100vh;
+
   display: flex;
   flex-direction: column;
 }
 
-/* ---------- Header ---------- */
+
+/* ======================================================
+   HEADER
+====================================================== */
+
 .app-header {
   text-align: center;
+
   margin-bottom: 28px;
 }
 
+.header-content {
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 20px;
+}
+
 .app-header h1 {
-  font-size: 2.4rem;
+  margin: 0;
+
+  font-size: 2.7rem;
+
   color: #ffffff;
+
   font-weight: 800;
+
   letter-spacing: -0.5px;
 }
 
 .subtitle {
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 0.95rem;
-  margin-top: 4px;
+  color:
+    rgba(255, 255, 255, 0.85);
+
+  font-size: 1.25rem;
+
+  margin-top: 6px;
 }
 
-/* ---------- Main card ---------- */
+
+/* ======================================================
+   USER SECTION
+====================================================== */
+
+.user-section {
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  gap: 50px;
+
+  margin-top: 15px;
+  margin-left: 20%;
+  margin-bottom: 5%;
+
+  color: #ffffff;
+}
+
+.welcome-user {
+  font-size: 28px;
+
+  font-weight: 600;
+
+  color: #ffffff;
+}
+
+.logout-button {
+  padding: 9px 16px;
+
+  border: none;
+
+  border-radius: 7px;
+
+  cursor: pointer;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  background: #dc3545;
+
+  color: #ffffff;
+
+  transition:
+    background 0.2s ease,
+    transform 0.15s ease;
+}
+
+.logout-button:hover {
+  background: #bb2d3b;
+
+  transform: translateY(-1px);
+}
+
+
+/* ======================================================
+   MAIN CARD
+====================================================== */
+
 .app-main {
   background: #ffffff;
+
   border-radius: 16px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+
+  box-shadow:
+    0 20px 50px
+    rgba(0, 0, 0, 0.2);
+
   padding: 28px;
+
   flex: 1;
+
+  width: 100%;
 }
+
+
+/* ======================================================
+   ERROR
+====================================================== */
 
 .error-banner {
   background: #fed7d7;
+
   color: #9b2c2c;
+
   padding: 10px 14px;
+
   border-radius: 8px;
+
   margin-bottom: 16px;
+
   font-size: 0.9rem;
+
   border: 1px solid #fc8181;
 }
 
+
+/* ======================================================
+   LOADING
+====================================================== */
+
 .loading {
   text-align: center;
+
   padding: 40px 0;
+
   color: #a0aec0;
+
+  font-size: 16px;
 }
+
+
+/* ======================================================
+   EMPTY MESSAGE
+====================================================== */
 
 .empty-message {
   text-align: center;
+
   color: #a0aec0;
+
   padding: 30px 0;
+
   font-size: 1rem;
+
+  margin: 0;
 }
 
-/* ---------- Form ---------- */
+
+/* ======================================================
+   TODO FORM
+====================================================== */
+
 .todo-form {
   display: flex;
+
   gap: 10px;
+
   margin-bottom: 24px;
+
+  width: 100%;
 }
 
 .todo-form input {
   flex: 1;
+
+  min-width: 0;
+
   padding: 12px 16px;
+
   font-size: 1rem;
+
   border: 2px solid #e2e8f0;
+
   border-radius: 10px;
+
   outline: none;
-  transition: border-color 0.2s;
+
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .todo-form input:focus {
   border-color: #667eea;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(102, 126, 234, 0.1);
 }
 
 .todo-form button {
   padding: 12px 22px;
+
   font-size: 1rem;
+
   font-weight: 600;
+
   color: #ffffff;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+  background:
+    linear-gradient(
+      135deg,
+      #667eea 0%,
+      #764ba2 100%
+    );
+
   border: none;
+
   border-radius: 10px;
+
   cursor: pointer;
-  transition: transform 0.15s, opacity 0.15s;
+
+  transition:
+    transform 0.15s,
+    opacity 0.15s;
 }
 
 .todo-form button:hover:not(:disabled) {
   transform: translateY(-1px);
+
   opacity: 0.92;
 }
 
 .todo-form button:disabled {
   opacity: 0.6;
+
   cursor: not-allowed;
 }
 
-/* ---------- Filters ---------- */
+
+/* ======================================================
+   FILTERS
+====================================================== */
+
 .todo-filter {
   display: flex;
+
   gap: 8px;
+
   margin-bottom: 20px;
+
+  width: 100%;
 }
 
 .todo-filter button {
   flex: 1;
-  padding: 8px 10px;
+
+  padding: 9px 10px;
+
   font-size: 0.9rem;
+
   font-weight: 600;
+
   color: #718096;
+
   background: #edf2f7;
+
   border: none;
+
   border-radius: 8px;
+
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+
+.todo-filter button:hover {
+  background: #e2e8f0;
 }
 
 .todo-filter button.active {
   background: #667eea;
+
   color: #ffffff;
 }
 
-/* ---------- List ---------- */
+
+/* ======================================================
+   TODO LIST
+====================================================== */
+
 .todo-list {
   list-style: none;
+
+  padding: 0;
+
+  margin: 20px 0;
+
+  width: 100%;
+
   display: flex;
+
   flex-direction: column;
+
   gap: 10px;
 }
 
+
+/* ======================================================
+   TODO ITEM
+====================================================== */
+
 .todo-item {
   display: flex;
+
   align-items: center;
+
   gap: 12px;
-  padding: 12px 14px;
+
+  width: 100%;
+
+  padding: 14px;
+
   background: #f7fafc;
+
   border: 1px solid #e2e8f0;
+
   border-radius: 10px;
-  transition: background 0.2s, box-shadow 0.2s;
+
+  transition:
+    background 0.2s,
+    box-shadow 0.2s;
 }
 
 .todo-item:hover {
   background: #edf2f7;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+
+  box-shadow:
+    0 4px 12px
+    rgba(0, 0, 0, 0.04);
 }
 
-.todo-checkbox {
-  width: 22px;
-  height: 22px;
-  min-width: 22px;
+
+/* ======================================================
+   TODO CHECKBOX
+====================================================== */
+
+.todo-item input[type="checkbox"] {
+  width: 20px;
+
+  height: 20px;
+
+  min-width: 20px;
+
+  margin: 0;
+
   cursor: pointer;
+
   accent-color: #667eea;
 }
 
-.todo-text {
+
+/* ======================================================
+   TODO CONTENT
+====================================================== */
+
+.todo-content {
   flex: 1;
+
+  min-width: 0;
+}
+
+.todo-title {
+  display: block;
+
   font-size: 1rem;
+
+  font-weight: 500;
+
+  color: #222222;
+
   word-break: break-word;
-  cursor: pointer;
+
+  overflow-wrap: anywhere;
+
+  line-height: 1.5;
 }
 
-.todo-text.completed {
+.todo-title.completed {
+  text-decoration: line-through;
+
   color: #a0aec0;
+
+  opacity: 0.7;
 }
 
-.todo-text.editing {
-  font-size: 0.95rem;
-  padding: 6px 10px;
+
+/* ======================================================
+   EDIT INPUT
+====================================================== */
+
+.todo-edit-input {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  padding: 8px 10px;
+
   border: 2px solid #667eea;
+
   border-radius: 8px;
+
+  font-size: 1rem;
+
   outline: none;
+
   background: #ffffff;
 }
+
+.todo-edit-input:focus {
+  box-shadow:
+    0 0 0 3px
+    rgba(102, 126, 234, 0.1);
+}
+
+
+/* ======================================================
+   TODO ACTIONS
+====================================================== */
+
+/* ---------- Todo Actions ---------- */
 
 .todo-actions {
   display: flex;
   gap: 6px;
+  flex-shrink: 0;
+
+  /* Hidden by default */
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.2s ease, visibility 0.2s ease;
+
+  transition:
+    opacity 0.2s ease,
+    visibility 0.2s ease;
 }
 
-.todo-item:hover .todo-actions,
-.todo-item:focus-within .todo-actions,
-.todo-item:has(.todo-text.editing) .todo-actions {
+/* Show buttons only when hovering the todo */
+.todo-item:hover .todo-actions {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Also keep buttons visible while editing */
+.todo-item:focus-within .todo-actions {
   opacity: 1;
   visibility: visible;
 }
 
 .todo-actions button {
-  padding: 6px 10px;
-  font-size: 0.85rem;
-  font-weight: 600;
+  padding: 7px 12px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  transition: opacity 0.15s, transform 0.15s;
-  color: #ffffff;
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
 .todo-actions button:hover {
@@ -225,48 +556,85 @@
   background: #a0aec0;
 }
 
-/* ---------- Clear completed ---------- */
-.clear-completed {
-  display: block;
-  width: 100%;
-  margin-top: 20px;
-  padding: 10px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #e53e3e;
-  background: #fff5f5;
-  border: 1px solid #fed7d7;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.2s;
+
+/* ======================================================
+   EDIT BUTTON
+====================================================== */
+
+.edit-button {
+  background: #38a169;
 }
 
-.clear-completed:hover {
-  background: #fed7d7;
+
+/* ======================================================
+   DELETE BUTTON
+====================================================== */
+
+.delete-button {
+  background: #e53e3e;
 }
 
-/* ---------- Pagination ---------- */
+
+/* ======================================================
+   SAVE BUTTON
+====================================================== */
+
+.save-button {
+  background: #3182ce;
+}
+
+
+/* ======================================================
+   CANCEL BUTTON
+====================================================== */
+
+.cancel-button {
+  background: #a0aec0;
+}
+
+
+/* ======================================================
+   PAGINATION
+====================================================== */
+
 .pagination {
   display: flex;
+
   align-items: center;
+
   justify-content: flex-end;
+
   gap: 6px;
+
   margin-top: 20px;
+
   flex-wrap: wrap;
 }
 
 .page-btn {
   min-width: 34px;
+
   height: 34px;
+
   padding: 0 8px;
+
   font-size: 0.9rem;
+
   font-weight: 600;
+
   color: #718096;
+
   background: #edf2f7;
+
   border: 1px solid #e2e8f0;
+
   border-radius: 8px;
+
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+
+  transition:
+    background 0.2s,
+    color 0.2s;
 }
 
 .page-btn:hover:not(:disabled) {
@@ -275,37 +643,229 @@
 
 .page-btn.active {
   background: #667eea;
+
   color: #ffffff;
+
   border-color: #667eea;
 }
 
 .page-btn:disabled {
   opacity: 0.5;
+
   cursor: not-allowed;
 }
 
 .page-info {
   margin-left: 6px;
+
   font-size: 0.85rem;
+
   color: #a0aec0;
 }
 
-/* ---------- Footer ---------- */
+
+/* ======================================================
+   FOOTER
+====================================================== */
+
 .app-footer {
   text-align: center;
+
   margin-top: 20px;
-  color: rgba(255, 255, 255, 0.85);
+
+  color:
+    rgba(255, 255, 255, 0.9);
+
   font-size: 0.9rem;
+
+  padding-bottom: 10px;
 }
 
-/* ---------- Responsive ---------- */
-@media (max-width: 480px) {
+
+/* ======================================================
+   AUTH PAGE
+====================================================== */
+
+.auth-container {
+  min-height: 100vh;
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  padding: 20px;
+}
+
+.auth-card {
+  width: 100%;
+
+  max-width: 420px;
+
+  padding: 35px;
+
+  border-radius: 16px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 10px 35px
+    rgba(0, 0, 0, 0.15);
+}
+
+.auth-card h1 {
+  margin-top: 0;
+
+  margin-bottom: 8px;
+
+  text-align: center;
+}
+
+.auth-card > p {
+  text-align: center;
+
+  margin-bottom: 25px;
+
+  color: #555555;
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+
+  margin-bottom: 7px;
+
+  font-weight: 600;
+
+  color: #333333;
+}
+
+.form-group input {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  padding: 12px;
+
+  border: 1px solid #cccccc;
+
+  border-radius: 8px;
+
+  font-size: 15px;
+
+  outline: none;
+}
+
+.form-group input:focus {
+  border-color: #667eea;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(102, 126, 234, 0.1);
+}
+
+.auth-card form button {
+  width: 100%;
+
+  padding: 12px;
+
+  border: none;
+
+  border-radius: 8px;
+
+  cursor: pointer;
+
+  font-size: 16px;
+
+  font-weight: 600;
+
+  color: #ffffff;
+
+  background:
+    linear-gradient(
+      135deg,
+      #667eea 0%,
+      #764ba2 100%
+    );
+}
+
+.auth-card form button:disabled {
+  opacity: 0.6;
+
+  cursor: not-allowed;
+}
+
+.auth-error {
+  margin-bottom: 15px;
+
+  padding: 10px;
+
+  border-radius: 8px;
+
+  background: #ffe5e5;
+
+  color: #c62828;
+}
+
+.auth-switch {
+  margin-top: 20px;
+
+  text-align: center;
+}
+
+.switch-button {
+  border: none;
+
+  background: none;
+
+  margin-left: 5px;
+
+  cursor: pointer;
+
+  font-weight: 600;
+
+  text-decoration: underline;
+
+  color: #667eea;
+}
+
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 600px) {
+
   .app {
-    padding: 20px 12px;
+    padding: 25px 12px;
   }
 
   .app-main {
     padding: 20px 16px;
+  }
+
+  .header-content {
+    flex-direction: column;
+  }
+
+  .app-header h1 {
+    font-size: 2rem;
+  }
+
+  .user-section {
+    margin-top: 5px;
+
+    flex-direction: column;
+
+    gap: 10px;
+  }
+
+  .welcome-user {
+    font-size: 16px;
   }
 
   .todo-form {
@@ -316,132 +876,62 @@
     width: 100%;
   }
 
+  .todo-filter {
+    flex-direction: column;
+  }
+
+  .todo-filter button {
+    width: 100%;
+  }
+
   .todo-item {
+    align-items: flex-start;
+
     flex-wrap: wrap;
   }
 
+  .todo-content {
+    flex: 1;
+
+    min-width: calc(
+      100% - 45px
+    );
+  }
+
   .todo-actions {
-    margin-left: auto;
+    width: 100%;
+
+    justify-content: flex-end;
+
+    margin-top: 5px;
+  }
+
+  .pagination {
+    justify-content: center;
+  }
+
+  .auth-card {
+    padding: 25px 20px;
   }
 }
 
-.auth-container {
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-}
 
-.auth-card {
-  width: 100%;
-  max-width: 420px;
-  padding: 35px;
-  border-radius: 16px;
-  background: white;
-  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.15);
-}
+@media (max-width: 400px) {
 
-.auth-card h1 {
-  margin-bottom: 8px;
-  text-align: center;
-}
+  .app {
+    padding: 20px 10px;
+  }
 
-.auth-card > p {
-  text-align: center;
-  margin-bottom: 25px;
-}
+  .app-main {
+    padding: 18px 12px;
+  }
 
-.form-group {
-  margin-bottom: 18px;
-}
+  .todo-actions {
+    justify-content: stretch;
+  }
 
-.form-group label {
-  display: block;
-  margin-bottom: 7px;
-  font-weight: 600;
-}
+  .todo-actions button {
+    flex: 1;
+  }
 
-.form-group input {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 15px;
-}
-
-.auth-card form button {
-  width: 100%;
-  padding: 12px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.auth-card form button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.auth-error {
-  margin-bottom: 15px;
-  padding: 10px;
-  border-radius: 8px;
-  background: #ffe5e5;
-  color: #c62828;
-}
-
-.auth-switch {
-  margin-top: 20px;
-  text-align: center;
-}
-
-.switch-button {
-  border: none;
-  background: none;
-  margin-left: 5px;
-  cursor: pointer;
-  font-weight: 600;
-  text-decoration: underline;
-}
-
-.header-content {
-  display: block;
-  justify-content: space-between;
-  align-items: center;
-  gap: 20px;
-}
-
-.user-section {
-  display: flex;
-  justify-content:center;
-  align-items: center;
-  gap: 60px;
-  margin: 5% 0%  10% 30%;
-  color: white;
-}
-
-.welcome-user {
-  font-size: 30px;
-  font-weight: 500;
-}
-
-.logout-button {
-  margin-right: 0;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  background: #dc3545;
-  color: white;
-  transition: 0.2s ease;
-}
-
-.logout-button:hover {
-  background: #bb2d3b;
 }
