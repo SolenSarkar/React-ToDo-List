@@ -1,95 +1,128 @@
 import express from 'express';
 import Todo from '../models/Todo.js';
+import protect from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
 // GET /api/todos — fetch all todos (newest first) with pagination
 // Query params: page (default 1), limit (default 5), status (all|active|completed)
-router.get('/', async (req, res) => {
+
+// =====================================
+// GET USER'S TODOS
+// =====================================
+router.get("/", protect, async (req, res) => {
   try {
-    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
-    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 5, 1), 100);
-    const skip = (page - 1) * limit;
+    const todos = await Todo.find({
+      user: req.userId,
+    }).sort({ createdAt: -1 });
 
-    const filter = {};
-    const status = req.query.status;
-    if (status === 'active') filter.completed = false;
-    if (status === 'completed') filter.completed = true;
+    res.json(todos);
+  } catch (error) {
+    console.error("Get todos error:", error);
 
-    const [todos, total, totalAll, totalActive, totalCompleted] =
-      await Promise.all([
-        Todo.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),
-        Todo.countDocuments(filter),
-        Todo.countDocuments({}),
-        Todo.countDocuments({ completed: false }),
-        Todo.countDocuments({ completed: true }),
-      ]);
+    res.status(500).json({
+      message: "Failed to fetch todos",
+    });
+  }
+});
+
+
+// =====================================
+// CREATE TODO
+// =====================================
+router.post("/", protect, async (req, res) => {
+  try {
+    const { title } = req.body;
+
+    if (!title || !title.trim()) {
+      return res.status(400).json({
+        message: "Todo title is required",
+      });
+    }
+
+    const todo = await Todo.create({
+      title: title.trim(),
+      completed: false,
+      user: req.userId,
+    });
+
+    res.status(201).json(todo);
+  } catch (error) {
+    console.error("Create todo error:", error);
+
+    res.status(500).json({
+      message: "Failed to create todo",
+    });
+  }
+});
+
+
+// =====================================
+// UPDATE TODO
+// =====================================
+router.put("/:id", protect, async (req, res) => {
+  try {
+    const { title, completed } = req.body;
+
+    const todo = await Todo.findOne({
+      _id: req.params.id,
+      user: req.userId,
+    });
+
+    if (!todo) {
+      return res.status(404).json({
+        message: "Todo not found",
+      });
+    }
+
+    if (title !== undefined) {
+      todo.title = title;
+    }
+
+    if (completed !== undefined) {
+      todo.completed = completed;
+    }
+
+    await todo.save();
+
+    res.json(todo);
+  } catch (error) {
+    console.error("Update todo error:", error);
+
+    res.status(500).json({
+      message: "Failed to update todo",
+    });
+  }
+});
+
+
+// =====================================
+// DELETE TODO
+// =====================================
+router.delete("/:id", protect, async (req, res) => {
+  try {
+    const todo = await Todo.findOneAndDelete({
+      _id: req.params.id,
+      user: req.userId,
+    });
+
+    if (!todo) {
+      return res.status(404).json({
+        message: "Todo not found",
+      });
+    }
 
     res.json({
-      todos,
-      total,
-      page,
-      limit,
-      totalPages: Math.max(Math.ceil(total / limit), 1),
-      counts: {
-        all: totalAll,
-        active: totalActive,
-        completed: totalCompleted,
-      },
+      message: "Todo deleted successfully",
     });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
+  } catch (error) {
+    console.error("Delete todo error:", error);
 
-// POST /api/todos — create a new todo
-router.post('/', async (req, res) => {
-  try {
-    const { text } = req.body;
-    if (!text || !text.trim()) {
-      return res.status(400).json({ message: 'Todo text is required' });
-    }
-    const todo = await Todo.create({ text: text.trim() });
-    res.status(201).json(todo);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// PUT /api/todos/:id — update text and/or completed
-router.put('/:id', async (req, res) => {
-  try {
-    const { text, completed } = req.body;
-    const update = {};
-
-    if (text !== undefined) {
-      if (!text.trim()) {
-        return res.status(400).json({ message: 'Todo text cannot be empty' });
-      }
-      update.text = text.trim();
-    }
-    if (completed !== undefined) update.completed = completed;
-
-    const todo = await Todo.findByIdAndUpdate(req.params.id, update, {
-      new: true,
-      runValidators: true,
+    res.status(500).json({
+      message: "Failed to delete todo",
     });
-    if (!todo) return res.status(404).json({ message: 'Todo not found' });
-    res.json(todo);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
   }
 });
 
-// DELETE /api/todos/:id — remove a todo
-router.delete('/:id', async (req, res) => {
-  try {
-    const todo = await Todo.findByIdAndDelete(req.params.id);
-    if (!todo) return res.status(404).json({ message: 'Todo not found' });
-    res.json({ message: 'Todo deleted successfully' });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
 
 export default router;

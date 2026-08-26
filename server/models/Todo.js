@@ -2,19 +2,28 @@ import mongoose from 'mongoose';
 
 const todoSchema = new mongoose.Schema(
   {
-    text: {
+    title: {
       type: String,
-      required: [true, 'Todo text is required'],
+      required: true,
       trim: true,
-      maxlength: [200, 'Todo text cannot exceed 200 characters'],
     },
+
     completed: {
       type: Boolean,
       default: false,
     },
+
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
+
 
 export default mongoose.model('Todo', todoSchema);
 

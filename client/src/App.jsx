@@ -1,217 +1,919 @@
 import { useState, useEffect, useCallback } from 'react';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+} from 'react-router-dom';
+
+import AuthPage from './pages/AuthPage.jsx';
 import TodoForm from './components/TodoForm.jsx';
 import TodoList from './components/TodoList.jsx';
 import TodoFilter from './components/TodoFilter.jsx';
 import Pagination from './components/Pagination.jsx';
+
 import './App.css';
 
-// In dev, Vite proxies /api to the Express backend.
-// In production (GitHub Pages), point VITE_API_URL to a hosted backend, e.g.
-// https://your-backend.onrender.com/api/todos
-// Derive the base API URL. If VITE_API_URL is set to the bare backend origin
-// (e.g. https://my-api.onrender.com) without the /api/todos suffix, append it
-// automatically so requests don't hit the root route (which 404s on non-GET).
+
+// ======================================================
+// API CONFIGURATION
+// ======================================================
+
+// In development, Vite proxies /api to the Express backend.
+// In production, VITE_API_URL should point to your hosted backend.
+
 let apiUrl = import.meta.env.VITE_API_URL || '/api/todos';
+
 if (apiUrl && !apiUrl.endsWith('/api/todos')) {
   apiUrl = apiUrl.replace(/\/+$/, '') + '/api/todos';
 }
+
 const API_URL = apiUrl;
+
 const ITEMS_PER_PAGE = 5;
 
-export default function App() {
+
+// ======================================================
+// TODO APP
+// ======================================================
+
+function TodoApp({ user, onLogout }) {
+
   const [todos, setTodos] = useState([]);
+
   const [loading, setLoading] = useState(true);
+
   const [error, setError] = useState('');
+
   const [filter, setFilter] = useState('all');
+
   const [page, setPage] = useState(1);
+
   const [total, setTotal] = useState(0);
+
   const [totalPages, setTotalPages] = useState(1);
-  const [counts, setCounts] = useState({ all: 0, active: 0, completed: 0 });
 
-  // Fetch a specific page from the server (paginated + filtered)
-  const fetchTodos = useCallback(async (requestedPage, requestedFilter) => {
-    try {
-      setLoading(true);
-      setError('');
-      const params = new URLSearchParams({
-        page: requestedPage,
-        limit: ITEMS_PER_PAGE,
-        status: requestedFilter,
-      });
-      const res = await fetch(`${API_URL}?${params}`);
-      if (!res.ok) throw new Error('Failed to load todos');
-      const data = await res.json();
-      setTodos(data.todos);
-      setTotal(data.total);
-      setTotalPages(data.totalPages);
-      setCounts(data.counts);
-      // If the requested page is beyond the last page, clamp it.
-      if (requestedPage > data.totalPages) {
-        setPage(data.totalPages);
-        return; // effect will refetch with the clamped page
-      }
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const [counts, setCounts] = useState({
+    all: 0,
+    active: 0,
+    completed: 0,
+  });
 
-  // Fetch whenever page or filter changes
-  useEffect(() => {
-    fetchTodos(page, filter);
-  }, [fetchTodos, page, filter]);
 
-  // Add a new todo
-  const addTodo = async (text) => {
-    try {
-      setError('');
-      const res = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text }),
-      });
-      if (!res.ok) {
+  // ======================================================
+  // FETCH TODOS
+  // ======================================================
+
+  const fetchTodos = useCallback(
+    async (requestedPage, requestedFilter) => {
+
+      try {
+
+        setLoading(true);
+        setError('');
+
+        const params = new URLSearchParams({
+          page: String(requestedPage),
+          limit: String(ITEMS_PER_PAGE),
+          status: requestedFilter,
+        });
+
+        const token = localStorage.getItem('token');
+
+        const res = await fetch(
+          `${API_URL}?${params}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+
+        // ----------------------------------------------
+        // Handle API errors
+        // ----------------------------------------------
+
+        if (!res.ok) {
+
+          const data = await res
+            .json()
+            .catch(() => ({}));
+
+          throw new Error(
+            data.message ||
+            'Failed to load todos'
+          );
+        }
+
+
+        // ----------------------------------------------
+        // Read response
+        // ----------------------------------------------
+
         const data = await res.json();
-        throw new Error(data.message || 'Failed to add todo');
+
+
+        // ----------------------------------------------
+        // Todos
+        // ----------------------------------------------
+
+        setTodos(
+          Array.isArray(data.todos)
+            ? data.todos
+            : []
+        );
+
+
+        // ----------------------------------------------
+        // Total
+        // ----------------------------------------------
+
+        setTotal(
+          typeof data.total === 'number'
+            ? data.total
+            : 0
+        );
+
+
+        // ----------------------------------------------
+        // Total pages
+        // ----------------------------------------------
+
+        const backendTotalPages =
+          typeof data.totalPages === 'number' &&
+          data.totalPages > 0
+            ? data.totalPages
+            : 1;
+
+        setTotalPages(
+          backendTotalPages
+        );
+
+
+        // ----------------------------------------------
+        // Counts
+        // ----------------------------------------------
+
+        setCounts({
+          all: data.counts?.all ?? 0,
+          active: data.counts?.active ?? 0,
+          completed: data.counts?.completed ?? 0,
+        });
+
+
+        // ----------------------------------------------
+        // Handle invalid page
+        // ----------------------------------------------
+
+        if (
+          requestedPage >
+          backendTotalPages
+        ) {
+          setPage(
+            backendTotalPages
+          );
+        }
+
+      } catch (err) {
+
+        setError(
+          err instanceof Error
+            ? err.message
+            : 'Failed to load todos'
+        );
+
+      } finally {
+
+        setLoading(false);
+
       }
-      setPage(1); // jump to the first page to see the new todo
-      fetchTodos(1, filter);
-    } catch (err) {
-      setError(err.message);
-    }
-  };
 
-  // Toggle a todo's completed status
-  const toggleTodo = async (id) => {
-    const target = todos.find((t) => t._id === id);
-    if (!target) return;
+    },
+    []
+  );
 
-    // Optimistic update
-    setTodos((prev) =>
-      prev.map((t) => (t._id === id ? { ...t, completed: !t.completed } : t))
+
+  // ======================================================
+  // FETCH WHEN PAGE OR FILTER CHANGES
+  // ======================================================
+
+  useEffect(() => {
+
+    fetchTodos(
+      page,
+      filter
     );
 
-    // When marking as complete, move view to the "Completed" tab
-    if (!target.completed) {
-      setFilter('completed');
-      setPage(1);
+  }, [
+    fetchTodos,
+    page,
+    filter,
+  ]);
+
+
+  // ======================================================
+  // ADD TODO
+  // ======================================================
+
+  const addTodo = async (text) => {
+  try {
+    setError('');
+
+    const trimmedText = text.trim();
+
+    if (!trimmedText) {
+      setError('Todo title is required');
+      return;
     }
-    try {
-      const res = await fetch(`${API_URL}/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ completed: !target.completed }),
-      });
-      if (!res.ok) {
-        throw new Error('Failed to update todo');
-      }
-      fetchTodos(page, filter);
-    } catch (err) {
-      setError(err.message);
-      // Revert on error
-      setTodos((prev) =>
-        prev.map((t) =>
-          t._id === id ? { ...t, completed: target.completed } : t
-        )
+
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      setError('You are not logged in');
+      return;
+    }
+
+    const res = await fetch(API_URL, {
+      method: 'POST',
+
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+
+      body: JSON.stringify({
+        title: trimmedText,
+      }),
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      throw new Error(
+        data.message || 'Failed to add todo'
       );
     }
-  };
 
-  // Edit a todo's text
-  const editTodo = async (id, newText) => {
-    const trimmed = newText.trim();
-    if (!trimmed) return;
+    // Go back to first page
+    setPage(1);
+
+    // Refresh todos
+    await fetchTodos(1, filter);
+
+  } catch (err) {
+    console.error('Add todo error:', err);
+
+    setError(
+      err instanceof Error
+        ? err.message
+        : 'Failed to add todo'
+    );
+  }
+};
+
+
+  // ======================================================
+  // TOGGLE TODO
+  // ======================================================
+
+  const toggleTodo = async (id) => {
+
+    const target = todos.find(
+      (todo) =>
+        todo._id === id
+    );
+
+    if (!target) {
+      return;
+    }
+
+
+    const newCompleted =
+      !target.completed;
+
+
+    // ----------------------------------------------
+    // Optimistic update
+    // ----------------------------------------------
+
+    setTodos((prev) =>
+      prev.map((todo) =>
+        todo._id === id
+          ? {
+              ...todo,
+              completed:
+                newCompleted,
+            }
+          : todo
+      )
+    );
+
+
     try {
+
       setError('');
-      const res = await fetch(`${API_URL}/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: trimmed }),
-      });
+
+      const token =
+        localStorage.getItem('token');
+
+
+      const res = await fetch(
+        `${API_URL}/${id}`,
+        {
+          method: 'PUT',
+
+          headers: {
+            'Content-Type':
+              'application/json',
+
+            Authorization:
+              `Bearer ${token}`,
+          },
+
+          body: JSON.stringify({
+            completed:
+              newCompleted,
+          }),
+        }
+      );
+
+
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.message || 'Failed to edit todo');
+
+        const data = await res
+          .json()
+          .catch(() => ({}));
+
+        throw new Error(
+          data.message ||
+          'Failed to update todo'
+        );
       }
-      const updated = await res.json();
-      setTodos((prev) => prev.map((t) => (t._id === id ? updated : t)));
+
+
+      // Refresh list
+      await fetchTodos(
+        page,
+        filter
+      );
+
     } catch (err) {
-      setError(err.message);
+
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Failed to update todo'
+      );
+
+
+      // ----------------------------------------------
+      // Roll back optimistic update
+      // ----------------------------------------------
+
+      setTodos((prev) =>
+        prev.map((todo) =>
+          todo._id === id
+            ? {
+                ...todo,
+                completed:
+                  target.completed,
+              }
+            : todo
+        )
+      );
+
     }
+
   };
 
-  // Delete a todo
-  const deleteTodo = async (id) => {
+
+  // ======================================================
+  // EDIT TODO
+  // ======================================================
+
+  const editTodo = async (
+    id,
+    newText
+  ) => {
+
+    const trimmed =
+      newText.trim();
+
+    if (!trimmed) {
+      return;
+    }
+
+
     try {
+
       setError('');
-      const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Failed to delete todo');
-      setTodos((prev) => prev.filter((t) => t._id !== id));
-      fetchTodos(page, filter);
+
+      const token =
+        localStorage.getItem('token');
+
+
+      const res = await fetch(
+        `${API_URL}/${id}`,
+        {
+          method: 'PUT',
+
+          headers: {
+            'Content-Type':
+              'application/json',
+
+            Authorization:
+              `Bearer ${token}`,
+          },
+
+          body: JSON.stringify({
+            title: trimmed,
+          }),
+        }
+      );
+
+
+      if (!res.ok) {
+
+        const data = await res
+          .json()
+          .catch(() => ({}));
+
+        throw new Error(
+          data.message ||
+          'Failed to edit todo'
+        );
+      }
+
+
+      const updated =
+        await res.json();
+
+
+      setTodos((prev) =>
+        prev.map((todo) =>
+          todo._id === id
+            ? updated
+            : todo
+        )
+      );
+
     } catch (err) {
-      setError(err.message);
+
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Failed to edit todo'
+      );
+
     }
+
   };
 
-  const handlePageChange = (newPage) => {
+
+  // ======================================================
+  // DELETE TODO
+  // ======================================================
+
+  const deleteTodo = async (id) => {
+
+    try {
+
+      setError('');
+
+      const token =
+        localStorage.getItem('token');
+
+
+      const res = await fetch(
+        `${API_URL}/${id}`,
+        {
+          method: 'DELETE',
+
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+          },
+        }
+      );
+
+
+      if (!res.ok) {
+
+        const data = await res
+          .json()
+          .catch(() => ({}));
+
+        throw new Error(
+          data.message ||
+          'Failed to delete todo'
+        );
+      }
+
+
+      // Refresh after deletion
+      await fetchTodos(
+        page,
+        filter
+      );
+
+    } catch (err) {
+
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Failed to delete todo'
+      );
+
+    }
+
+  };
+
+
+  // ======================================================
+  // PAGINATION
+  // ======================================================
+
+  const handlePageChange = (
+    newPage
+  ) => {
+
+    if (newPage < 1) {
+      return;
+    }
+
+    if (newPage > totalPages) {
+      return;
+    }
+
     setPage(newPage);
+
   };
 
-  const handleFilterChange = (newFilter) => {
-    if (newFilter === filter) return;
+
+  // ======================================================
+  // FILTER
+  // ======================================================
+
+  const handleFilterChange = (
+    newFilter
+  ) => {
+
+    if (newFilter === filter) {
+      return;
+    }
+
     setFilter(newFilter);
-    setPage(1); // reset to first page when filter changes
+
+    // Reset pagination
+    setPage(1);
+
   };
+
+
+  // ======================================================
+  // UI
+  // ======================================================
 
   return (
+
     <div className="app">
+
+
+      {/* ==================================================
+          HEADER
+      ================================================== */}
+
       <header className="app-header">
-        <h1>📝 To-Do List</h1>
-        <p className="subtitle">MERN Stack Task Manager</p>
-      </header>
+
+  <div className="header-content">
+
+    <div className="user-section">
+
+      <span className="welcome-user">
+        Welcome, {user?.name || user?.email || 'User'}
+      </span>
+
+      <button
+        type="button"
+        className="logout-button"
+        onClick={onLogout}
+      >
+        Logout
+      </button>
+
+    </div>
+    <div>
+      <h1>📝 To-Do List</h1>
+
+      <p className="subtitle">
+        MERN Stack Task Manager
+      </p>
+    </div>
+
+    
+
+  </div>
+
+</header>
+
+
+      {/* ==================================================
+          MAIN
+      ================================================== */}
 
       <main className="app-main">
-        {error && <div className="error-banner">{error}</div>}
 
-        <TodoForm onAdd={addTodo} />
+
+        {/* ----------------------------------------------
+            ERROR
+        ---------------------------------------------- */}
+
+        {error && (
+
+          <div className="error-banner">
+
+            {error}
+
+          </div>
+
+        )}
+
+
+        {/* ----------------------------------------------
+            TODO FORM
+        ---------------------------------------------- */}
+
+        <TodoForm
+          onAdd={addTodo}
+        />
+
+
+        {/* ----------------------------------------------
+            FILTER
+        ---------------------------------------------- */}
 
         <TodoFilter
           filter={filter}
-          onFilterChange={handleFilterChange}
+          onFilterChange={
+            handleFilterChange
+          }
           counts={counts}
         />
 
+
+        {/* ----------------------------------------------
+            TODO LIST
+        ---------------------------------------------- */}
+
         {loading ? (
-          <div className="loading">Loading todos…</div>
+
+          <div className="loading">
+
+            Loading todos…
+
+          </div>
+
         ) : (
+
           <TodoList
             todos={todos}
             onToggle={toggleTodo}
             onEdit={editTodo}
             onDelete={deleteTodo}
           />
+
         )}
 
-        {!loading && todos.length === 0 && (
-          <p className="empty-message">
-            {total === 0
-              ? 'No todos yet. Add one above! 🎯'
-              : 'No todos in this filter.'}
-          </p>
+
+        {/* ----------------------------------------------
+            EMPTY MESSAGE
+        ---------------------------------------------- */}
+
+        {!loading &&
+          todos.length === 0 && (
+
+            <p className="empty-message">
+
+              {total === 0
+                ? 'No todos yet. Add one above! 🎯'
+                : 'No todos in this filter.'}
+
+            </p>
+
         )}
 
-        {!loading && total > 0 && (
-          <Pagination
-            page={page}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-          />
+
+        {/* ----------------------------------------------
+            PAGINATION
+        ---------------------------------------------- */}
+
+        {!loading &&
+          total > 0 && (
+
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              onPageChange={
+                handlePageChange
+              }
+            />
+
         )}
+
       </main>
 
+
+      {/* ==================================================
+          FOOTER
+      ================================================== */}
+
       <footer className="app-footer">
-        {counts.active} active • {counts.completed} completed
+
+        {counts?.active ?? 0}
+
+        {' active • '}
+
+        {counts?.completed ?? 0}
+
+        {' completed'}
+
       </footer>
+
     </div>
+
   );
+
+}
+
+
+// ======================================================
+// PROTECTED TODO APP
+// ======================================================
+
+function ProtectedTodoApp() {
+
+  const [user, setUser] =
+    useState(() => {
+
+      const savedUser =
+        localStorage.getItem(
+          'user'
+        );
+
+
+      if (!savedUser) {
+        return null;
+      }
+
+
+      try {
+
+        return JSON.parse(
+          savedUser
+        );
+
+      } catch {
+
+        localStorage.removeItem(
+          'user'
+        );
+
+        localStorage.removeItem(
+          'token'
+        );
+
+        return null;
+
+      }
+
+    });
+
+
+  // ====================================================
+  // LOGIN
+  // ====================================================
+
+  const handleLogin = (
+    loggedInUser
+  ) => {
+
+    // Save user
+    localStorage.setItem(
+      'user',
+      JSON.stringify(
+        loggedInUser
+      )
+    );
+
+
+    // Immediately update React state
+    setUser(
+      loggedInUser
+    );
+
+  };
+
+
+  // ====================================================
+  // LOGOUT
+  // ====================================================
+
+  const handleLogout = () => {
+
+    // Remove authentication
+    localStorage.removeItem(
+      'user'
+    );
+
+    localStorage.removeItem(
+      'token'
+    );
+
+
+    // Immediately return to AuthPage
+    setUser(null);
+
+  };
+
+
+  // ====================================================
+  // NOT LOGGED IN
+  // ====================================================
+
+  if (!user) {
+
+    return (
+
+      <AuthPage
+        onLogin={handleLogin}
+      />
+
+    );
+
+  }
+
+
+  // ====================================================
+  // LOGGED IN
+  // ====================================================
+
+  return (
+
+    <TodoApp
+      user={user}
+      onLogout={handleLogout}
+    />
+
+  );
+
+}
+
+
+// ======================================================
+// APP ROUTER
+// ======================================================
+
+export default function App() {
+
+  return (
+
+    <BrowserRouter
+      basename="/React-ToDo-List"
+    >
+
+      <Routes>
+
+        {/* ==============================================
+            MAIN APPLICATION
+        ============================================== */}
+
+        <Route
+          path="/"
+          element={
+            <ProtectedTodoApp />
+          }
+        />
+
+
+        {/* ==============================================
+            Any unknown URL goes back to home
+        ============================================== */}
+
+        <Route
+          path="*"
+          element={
+            <Navigate
+              to="/"
+              replace
+            />
+          }
+        />
+
+      </Routes>
+
+    </BrowserRouter>
+
+  );
+
 }

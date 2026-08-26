@@ -5,11 +5,14 @@ import dotenv from 'dotenv';
 import path from 'path';   
 import { fileURLToPath } from 'url';
 import todoRoutes from './routes/todos.js';
+import authRouter from './routes/auth.js';
+
 
 // Load .env from the server/ directory explicitly, so the backend works even
 // when it is started from the repo root (e.g. `node server/server.js`).
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
 dotenv.config({ path: path.join(__dirname, '.env') });
 
 const app = express();
@@ -41,6 +44,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/todos', todoRoutes);
+app.use("/api/auth", authRouter);
 
 // Root route
 app.get('/', (req, res) => {

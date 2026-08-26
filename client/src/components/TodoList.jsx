@@ -1,11 +1,21 @@
 import TodoItem from './TodoItem.jsx';
 
-export default function TodoList({ todos, onToggle, onEdit, onDelete }) {
-  if (todos.length === 0) return null;
+export default function TodoList({
+  todos = [],
+  onToggle,
+  onEdit,
+  onDelete,
+}) {
+  // Make sure todos is always an array
+  const safeTodos = Array.isArray(todos) ? todos : [];
+
+  if (safeTodos.length === 0) {
+    return null;
+  }
 
   return (
     <ul className="todo-list">
-      {todos.map((todo) => (
+      {safeTodos.map((todo) => (
         <TodoItem
           key={todo._id}
           todo={todo}

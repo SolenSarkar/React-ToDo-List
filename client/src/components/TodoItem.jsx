@@ -2,10 +2,10 @@ import { useState } from 'react';
 
 export default function TodoItem({ todo, onToggle, onEdit, onDelete }) {
   const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState(todo.text);
+  const [draft, setDraft] = useState(todo.title);
 
   const startEdit = () => {
-    setDraft(todo.text);
+    setDraft(todo.title);
     setEditing(true);
   };
 
@@ -17,7 +17,7 @@ export default function TodoItem({ todo, onToggle, onEdit, onDelete }) {
   };
 
   const cancelEdit = () => {
-    setDraft(todo.text);
+    setDraft(todo.title);
     setEditing(false);
   };
 
@@ -38,8 +38,8 @@ export default function TodoItem({ todo, onToggle, onEdit, onDelete }) {
 
       {editing ? (
         <input
-          className="todo-text editing"
-          type="text"
+          className="todo-title editing"
+          type="title"
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={handleKeyDown}
@@ -47,11 +47,11 @@ export default function TodoItem({ todo, onToggle, onEdit, onDelete }) {
         />
       ) : (
         <span
-          className={`todo-text${todo.completed ? ' completed' : ''}`}
+          className={`todo-title${todo.completed ? ' completed' : ''}`}
           onClick={() => onToggle(todo._id)}
           onDoubleClick={startEdit}
         >
-          {todo.text}
+          {todo.title}
         </span>
       )}
 
